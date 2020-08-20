@@ -9,7 +9,7 @@ A set of helper functions for using graphviz
 >>> print(gw_small_fixed_example.edges)
 >>> 
 >>> # `G(vertices, edges)` is short-hand for:
->>> #   quick_render(mkgraph(vertices, edges))
+>>> #   qrender(mkgraph(vertices, edges))
 >>> #
 >>> # `open=True` tells it to open the image in your image viewer app.
 >>> #   If your image viewer updates the displayed image when the image
@@ -50,22 +50,25 @@ def mkgraph(vertices, edges, direction="LR"):
         graph.edge(tail, head, weight=str(weight))
     return graph
 
-def quick_render(g, open=False):
-    """Render the given graph and open it in your image viewer."""
-    g.render("quick_render", view=open, cleanup=True, format="png")
+def qrender(graph, open=False):
+    """
+    'Quick' render the given graph and open it in your image viewer.
+    """
+
+    graph.render("qrender", view=open, cleanup=True, format="png")
 
 def G(vertices, edges, direction="LR", open=False):
     """
     Short-hand for:
     ```
-    quick_render(
+    qrender(
         mkgraph(vertices, edges, direction=direction),
         open=open
     )
     ```
     """
 
-    quick_render(mkgraph(vertices, edges, direction), open=open)
+    qrender(mkgraph(vertices, edges, direction), open=open)
 
 class gw_small_fixed_example:
     """
