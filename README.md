@@ -11,10 +11,7 @@ Graphwork defines three functions:
   vertices and edges.
 
   `vertices` is an iterable of node names (`string`/`bytes` objects).
-  `edges` is an iterable of `((vertex_1, vertex_2), weight)` tuples.
-    Note that for the purposes of `(vertex_1, vertex_2)` tuples, a
-    two-character string is valid, eg. `('AB', 4)` means
-    `A <-> B [weight = 4]`.
+  `edges` is an iterable of `((vertex_1, vertex_2), weight)` tuples. Note that for the purposes of `(vertex_1, vertex_2)` tuples, a two-character string is valid, eg. `('AB', 4)` means `A <-> B [weight = 4]`.
 
 - `qrender(graph, open=False)`
 
@@ -32,6 +29,8 @@ Graphwork defines three functions:
   )
   ```
 
-## Examples
+## Other Resources
 
 See `help(graphwork)` for examples.
+
+See the [Graphviz manual](https://graphviz.readthedocs.io/en/stable/manual.html) for details about what the Python Graphviz library supports.
