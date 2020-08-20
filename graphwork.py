@@ -17,7 +17,8 @@ A set of helper functions for using graphviz
 >>> #   again (until you close your image viewer app).
 >>> G(*gw_small_fixed_example(), open=True)
 >>>
->>> # Up-Down orientation
+>>> # Up-Down orientation. `direction` can be anything that graphviz's
+>>> # "rankdir" attribute allows.
 >>> G(*gw_small_fixed_example(), direction='UD', open=True)
 >>>
 >>> # Any kind of iterable data will work. The graph can only be
@@ -57,7 +58,10 @@ def G(vertices, edges, direction="LR", open=False):
     """
     Short-hand for:
     ```
-    quick_render(mkgraph(vertices, edges, direction=direction), open=open)
+    quick_render(
+        mkgraph(vertices, edges, direction=direction),
+        open=open
+    )
     ```
     """
 
@@ -71,7 +75,11 @@ class gw_small_fixed_example:
     """
 
     vertices = "STUVWXYZ"
-    edges = [('TS',22), ('TU',20), ('TV',23), ('SU',18), ('UV',19), ('UW',17), ('UX',18), ('VW',16), ('WX',18), ('WZ',18), ('XY',17), ('ZY',15)]
+    edges = [
+        ('TS',22), ('TU',20), ('TV',23), ('SU',18), ('UV',19),
+        ('UW',17), ('UX',18), ('VW',16), ('WX',18), ('WZ',18),
+        ('XY',17), ('ZY',15)
+    ]
 
     def __new__(cls):
         """
@@ -82,8 +90,8 @@ class gw_small_fixed_example:
         return (cls.vertices, cls.edges)
 
 class gw_large_random_example:
-    # Warning: A large value for num_edges (eg. 1000) will timeout on load of
-    #          the graph.
+    # Warning: A large value for num_edges (eg. 1000) will timeout on
+    #          load of the graph.
     max_vertices = 100
     num_edges = 100
 
