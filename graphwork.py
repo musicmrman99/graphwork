@@ -57,7 +57,9 @@ def mkgraph(vertices, edges, direction="LR"):
 
 def qrender(graph, open=False):
     """
-    'Quick' render the given graph and open it in your image viewer.
+    'Quick' render the given `Graph` object to an image file.
+
+    If `open` is True, open the image in your OS's default image viewer.
     """
 
     graph.render("qrender", view=open, cleanup=True, format="png")
@@ -73,7 +75,7 @@ def G(vertices, edges, direction="LR", open=False):
     ```
     """
 
-    qrender(mkgraph(vertices, edges, direction), open=open)
+    qrender(mkgraph(vertices, edges, direction=direction), open=open)
 
 class gw_small_fixed_example:
     """
