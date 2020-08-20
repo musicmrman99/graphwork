@@ -34,8 +34,8 @@ import random
 
 def mkgraph(vertices, edges, direction="LR"):
     """
-    Creates and returns a Graph object containing the given vertices and
-    edges.
+    Creates and returns a graphviz `Graph` object containing the given
+    vertices and edges.
 
     vertices must be an iterable of strings.
     edges must be an iterable of ((tail, head), weight) tuples. Note
@@ -44,10 +44,15 @@ def mkgraph(vertices, edges, direction="LR"):
     """
 
     graph = graphviz.Graph(graph_attr={"rankdir": direction})
-    for name in vertices:
-        graph.node(name)
+    for params in vertices:
+        try:
+            graph.node(params)
+        except:
+            graph.node(*params)
+
     for ((tail, head), weight) in edges:
         graph.edge(tail, head, weight=str(weight))
+
     return graph
 
 def qrender(graph, open=False):
