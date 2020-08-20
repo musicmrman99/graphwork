@@ -5,8 +5,8 @@ A set of helper functions for using graphviz
 >>> 
 >>> # This is the information being graphed. Remember: A string is a
 >>> # list of characters.
->>> print(gw_example.vertices)
->>> print(gw_example.edges)
+>>> print(gw_small_fixed_example.vertices)
+>>> print(gw_small_fixed_example.edges)
 >>> 
 >>> # `G(vertices, edges)` is short-hand for:
 >>> #   quick_render(mkgraph(vertices, edges))
@@ -15,11 +15,21 @@ A set of helper functions for using graphviz
 >>> #   If your image viewer updates the displayed image when the image
 >>> #   file changes on disk, you won't need to supply this argument
 >>> #   again (until you close your image viewer app).
->>> G(*gw_example(), open=True)
->>> G(*gw_example(), direction='UD', open=True)
+>>> G(*gw_small_fixed_example(), open=True)
+>>>
+>>> # Up-Down orientation
+>>> G(*gw_small_fixed_example(), direction='UD', open=True)
+>>>
+>>> # Any kind of iterable data will work. The graph can only be
+>>> #   limited in size, though - don't go crazy or it will crash.
+>>> (vertices, edges) = gw_large_random_example()
+>>> print(vertices)
+>>> print(edges)
+>>> G(vertices, edges, open=True)
 """
 
 import graphviz
+import random
 
 def mkgraph(vertices, edges, direction="LR"):
     """
@@ -53,7 +63,7 @@ def G(vertices, edges, direction="LR", open=False):
 
     quick_render(mkgraph(vertices, edges, direction), open=open)
 
-class gw_example:
+class gw_small_fixed_example:
     """
     An example of the inputs the functions in this module expect.
 
@@ -70,3 +80,26 @@ class gw_example:
         """
 
         return (cls.vertices, cls.edges)
+
+class gw_large_random_example:
+    # Warning: A large value for num_edges (eg. 1000) will timeout on load of
+    #          the graph.
+    max_vertices = 100
+    num_edges = 100
+
+    def __new__(cls):
+        # Generate edges first
+        rnde = [
+            ((
+                str(random.randrange(cls.max_vertices)), # first vertex
+                str(random.randrange(cls.max_vertices)) # second vertex
+            ), 1) # edge weight
+            for _ in range(cls.num_edges)
+        ]
+
+        # Only include vertices mentioned in at least one edge
+        rndv = set()
+        for (vertices, _) in rnde:
+            rndv.update(vertices)
+
+        return(rndv, rnde)
