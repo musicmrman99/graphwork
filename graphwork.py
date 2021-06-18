@@ -2,122 +2,165 @@
 A set of helper functions for using graphviz
 
 >>> from graphwork import *
->>> 
->>> # This is the information being graphed. Remember: A string is a
->>> # list of characters.
->>> print(gw_small_fixed_example.vertices)
->>> print(gw_small_fixed_example.edges)
->>> 
->>> # `G(vertices, edges)` is short-hand for:
->>> #   qrender(mkgraph(vertices, edges))
->>> #
->>> # `open=True` tells it to open the image in your image viewer app.
->>> #   If your image viewer updates the displayed image when the image
->>> #   file changes on disk, you won't need to supply this argument
->>> #   again (until you close your image viewer app).
->>> G(*gw_small_fixed_example(), open=True)
->>>
->>> # Up-Down orientation. `direction` can be anything that graphviz's
->>> # "rankdir" attribute allows.
->>> G(*gw_small_fixed_example(), direction='UD', open=True)
->>>
->>> # Any kind of iterable data will work. The graph can only be
->>> #   limited in size, though - don't go crazy or it will crash.
->>> (vertices, edges) = gw_large_random_example()
->>> print(vertices)
+
+This is the information being graphed. Remember: A string is a list of
+characters.
+>>> print(gw_example_small_fixed())
+
+`G(edges)` is short-hand for:
+  render(mkgraph(edges))
+
+`open=True` tells it to open the image in your image viewer app. If your image
+viewer updates the displayed image when the image file changes on disk, you
+won't need to supply this argument again (until you close your image viewer
+app).
+>>> G(gw_example_small_fixed(), open=True)
+
+Up-Down orientation. Additional keyword arguments are passed to Graph() as graph
+attributes.
+>>> G(gw_example_small_fixed(), open=True, rankdir='UD')
+
+Can also pass vertices - useful for disconnected vertices. These are combined
+with those mentioned in edges.
+Note: The graph can only be limited in size - don't go crazy or it will crash.
+>>> (edges, vertices) = gw_example_large_random()
 >>> print(edges)
->>> G(vertices, edges, open=True)
+>>> print(vertices)
+>>> G(edges, vertices, open=True)
 """
 
 import graphviz
 import random
 
-def mkgraph(vertices, edges, direction="LR"):
+# Creating Graphs
+# --------------------------------------------------
+
+# You can edit this after import
+default_graph_attrs = {
+    "rankdir": "LR"
+}
+
+def mknode(
+        graph: graphviz.Graph,
+        name: str, label: str = None, attrs: dict = {}):
+    """Create a node in graph with name, label and attributes."""
+    graph.node(name, label, **attrs)
+
+def mkedge(
+        graph: graphviz.Graph,
+        tail: str, head: str, attrs: dict = {}):
+    """Create an edge in graph with end points and attributes."""
+    graph.edge(tail, head, **attrs)
+
+def mkgraph(edges: list, vertices: list = None, attrs: dict = None):
     """
-    Creates and returns a graphviz `Graph` object containing the given
-    vertices and edges.
+    Create and return a graphviz `Graph` object containing the given edges.
 
-    vertices must be an iterable of strings.
-    edges must be an iterable of ((tail, head), weight) tuples. Note
-    that for the purposes of (tail, head), a two-character string is
-    valid, eg. ('AB',4) means `A -> B [weight = 4]`.
+    edges is an iterable of (tail: string, head: string[, attrs: dict]) tuples.
+    Note: If only (tail, head) are given, a two-character string is valid,
+    eg. 'AB' means `A -> B`.
+    
+    If given, vertices is an iterable of (name: string[, label: string[,
+    attrs: dict]]) tuples. If some disconnected vertices must be included, they
+    must be given in vertices. Any vertices attached to an edge may also be
+    included in this iterable, but don't have to be unless they have a label or
+    additional attributes.
     """
 
-    graph = graphviz.Graph(graph_attr={"rankdir": direction})
-    for params in vertices:
-        try:
-            graph.node(params)
-        except:
-            graph.node(*params)
+    # Make the graph
+    graph_attrs = dict(default_graph_attrs)
+    if (attrs != None):
+        graph_attrs.update(attrs)
 
-    for ((tail, head), weight) in edges:
-        graph.edge(tail, head, weight=str(weight))
+    graph = graphviz.Graph(graph_attr=graph_attrs)
+
+    # Add vertices first
+    if vertices != None:
+        for vertex in vertices:
+            try:
+                mknode(graph, vertex)
+            except:
+                mknode(graph, *vertex)
+
+    # Add all edges
+    for edge in edges:
+        mkedge(graph, *edge)
 
     return graph
 
-def qrender(graph, open=False):
+# Rendering and Showing
+# --------------------------------------------------
+
+def render(graph: graphviz.Graph, open=False):
     """
-    'Quick' render the given `Graph` object to an image file.
+    Render the given Graph object to an image file.
+
+    The file is always named "render.png".
 
     If `open` is True, open the image in your OS's default image viewer.
     """
 
-    graph.render("qrender", view=open, cleanup=True, format="png")
+    graph.render("render", format="png", view=open, cleanup=True)
 
-def G(vertices, edges, direction="LR", open=False):
+def show(graph: graphviz.Graph):
     """
+    Show the given Graph object.
+
     Short-hand for:
-    ```
-    qrender(
-        mkgraph(vertices, edges, direction=direction),
-        open=open
-    )
-    ```
+    >>> render(graph, open=True)
     """
 
-    qrender(mkgraph(vertices, edges, direction=direction), open=open)
+    render(graph, open=True)
 
-class gw_small_fixed_example:
+# G()
+# --------------------------------------------------
+
+def G(edges, vertices=None, graph_attrs=None, open=False):
+    """
+    Create the graph and render it immediately.
+
+    Short-hand for:
+    >>> render(mkgraph(edges, vertices, graph_attrs), open=open)
+    """
+
+    render(mkgraph(edges, vertices, graph_attrs), open=open)
+
+# Examples
+# --------------------------------------------------
+
+_gw_example_small_fixed_edges = [
+    ('TS',22), ('TU',20), ('TV',23), ('SU',18), ('UV',19), ('UW',17),
+    ('UX',18), ('VW',16), ('WX',18), ('WZ',18), ('XY',17), ('ZY',15)
+]
+def gw_example_small_fixed():
     """
     An example of the inputs the functions in this module expect.
 
-    Use `G(*graphwork.example())` to display this example.
+    Use `G(gw_example_small_fixed(), open=True)` to display this example.
     """
 
-    vertices = "STUVWXYZ"
-    edges = [
-        ('TS',22), ('TU',20), ('TV',23), ('SU',18), ('UV',19),
-        ('UW',17), ('UX',18), ('VW',16), ('WX',18), ('WZ',18),
-        ('XY',17), ('ZY',15)
+    return map(
+        lambda e: (*e[0], {"weight": e[1]}),
+        _gw_example_small_fixed_edges
+    )
+
+# Warning: A large value for num_edges (eg. 1000) will timeout on load of the
+#   graph.
+_max_vertices = 100
+_num_edges = 100
+def gw_example_large_random():
+    """
+    A larger example of using G().
+
+    Use `G(gw_example_large_random(), open=True)` to display this example.
+    """
+
+    # Generate edges first
+    return [
+        (
+            str(random.randrange(_max_vertices)), # tail vertex
+            str(random.randrange(_max_vertices)), # head vertex
+            {"weight": 1} # edge weight
+        )
+        for _ in range(_num_edges)
     ]
-
-    def __new__(cls):
-        """
-        Return a (vertices, edges) two-tuple of the vertices and edges
-        defined in this class.
-        """
-
-        return (cls.vertices, cls.edges)
-
-class gw_large_random_example:
-    # Warning: A large value for num_edges (eg. 1000) will timeout on
-    #          load of the graph.
-    max_vertices = 100
-    num_edges = 100
-
-    def __new__(cls):
-        # Generate edges first
-        rnde = [
-            ((
-                str(random.randrange(cls.max_vertices)), # first vertex
-                str(random.randrange(cls.max_vertices)) # second vertex
-            ), 1) # edge weight
-            for _ in range(cls.num_edges)
-        ]
-
-        # Only include vertices mentioned in at least one edge
-        rndv = set()
-        for (vertices, _) in rnde:
-            rndv.update(vertices)
-
-        return(rndv, rnde)
