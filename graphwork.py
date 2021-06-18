@@ -40,6 +40,8 @@ default_graph_attrs = {
 }
 
 def generic_graph(attrs: dict = None) -> graphviz.Graph:
+    """Create a graph with the given attributes"""
+
     graph_attrs = dict(default_graph_attrs)
     if (attrs != None):
         graph_attrs.update(attrs)
@@ -49,9 +51,7 @@ def generic_graph(attrs: dict = None) -> graphviz.Graph:
 def add_generic_node(
         graph: graphviz.Graph,
         name: str, label: str = None, attrs: dict = None):
-    """
-    Create a node in graph with name, label and attributes.
-    """
+    """Create a node in graph with the given name, label and attributes."""
 
     if attrs == None:
         attrs = {}
@@ -61,13 +61,7 @@ def add_generic_node(
 def add_generic_edge(
         graph: graphviz.Graph,
         tail: str, head: str, attrs: dict = None):
-    """
-    Create an edge in graph with end points and attributes.
-    
-    Note: If only (tail, head) need to be given, and both are single-character
-    names, a two-character string can be unpacked as arguments, eg:
-      make_generic_edge(graph, *'AB')
-    """
+    """Create an edge in graph with the given end points and attributes."""
 
     if attrs == None:
         attrs = {}
@@ -75,21 +69,22 @@ def add_generic_edge(
     graph.edge(tail, head, **attrs)
 
 def mkgraph(
-        edges: list, vertices: list = None, attrs: dict = None,
+        edges: list = None, vertices: list = None, attrs: dict = None,
         mkgraph=generic_graph, mkedge=add_generic_edge, mknode=add_generic_node
 ):
     """
     Create and return a graphviz `Graph` object containing the given edges.
 
-    edges is an iterable of tuples, where each tuple's items are passed to
-    mkedge(). The number and types of elements of each tuple must match the
-    signature of mkedge().
+    If given, edges is an iterable of tuples, where each tuple's items are
+    passed to mkedge(). The number and types of elements of each tuple must
+    match the signature of mkedge().
     
     If given, vertices is an iterable of tuples, where each tuple's items are
-    passed to mknode(). If some disconnected vertices (those that have no edges
-    connected to them) must be included, they must be given in vertices. Any
-    vertices attached to an edge may also be included in vertices, but does not
-    have to be unless it requires a label or additional attributes.
+    passed to mknode(). The number and types of elements of each tuple must
+    match the signature of mknode(). If some disconnected vertices (those that
+    have no edges connected to them) must be included, they must be given in
+    vertices. Any vertices attached to an edge may also be included in vertices,
+    but does not have to be unless it requires a label or additional attributes.
 
     if given, attrs is a dictionary of attributes for the graph.
 
