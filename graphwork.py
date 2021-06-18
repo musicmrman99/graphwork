@@ -98,7 +98,7 @@ def mkgraph(
     # Make the graph
     graph = mkgraph(attrs)
 
-    # Add vertices first
+    # Add given vertices
     if vertices != None:
         for vertex in vertices:
             try:
@@ -107,8 +107,9 @@ def mkgraph(
                 mknode(graph, *vertex)
 
     # Add all edges
-    for edge in edges:
-        mkedge(graph, *edge)
+    if edges != None:
+        for edge in edges:
+            mkedge(graph, *edge)
 
     return graph
 
