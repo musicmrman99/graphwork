@@ -16,9 +16,8 @@ won't need to supply this argument again (until you close your image viewer
 app).
 >>> G(gw_example_small_fixed(), open=True)
 
-Up-Down orientation. Additional keyword arguments are passed to Graph() as graph
-attributes.
->>> G(gw_example_small_fixed(), open=True, rankdir='UD')
+Can also pass graph attributes, eg. up-down orientation.
+>>> G(gw_example_small_fixed(), graph_attrs={rankdir='UD'}, open=True)
 
 Can also pass vertices - useful for disconnected vertices. These are combined
 with those mentioned in edges.
@@ -40,31 +39,44 @@ default_graph_attrs = {
     "rankdir": "LR"
 }
 
-def mknode(
+def make_generic_node(
         graph: graphviz.Graph,
         name: str, label: str = None, attrs: dict = {}):
-    """Create a node in graph with name, label and attributes."""
+    """
+    Create a node in graph with name, label and attributes.
+    """
+
     graph.node(name, label, **attrs)
 
-def mkedge(
+def make_generic_edge(
         graph: graphviz.Graph,
         tail: str, head: str, attrs: dict = {}):
-    """Create an edge in graph with end points and attributes."""
+    """
+    Create an edge in graph with end points and attributes.
+    
+    Note: If only (tail, head) need to be given, and both are single-character
+    names, a two-character string can be unpacked as arguments, eg:
+      make_generic_edge(graph, *'AB')
+    """
+
     graph.edge(tail, head, **attrs)
 
-def mkgraph(edges: list, vertices: list = None, attrs: dict = None):
+def mkgraph(
+        edges: list, vertices: list = None, attrs: dict = None,
+        mkedge=make_generic_edge, mknode=make_generic_node
+):
     """
     Create and return a graphviz `Graph` object containing the given edges.
 
-    edges is an iterable of (tail: string, head: string[, attrs: dict]) tuples.
-    Note: If only (tail, head) are given, a two-character string is valid,
-    eg. 'AB' means `A -> B`.
+    edges is an iterable of tuples, where each tuple's items are passed to
+    mkedge(). The number and types of elements of each tuple must match the
+    signature of mkedge().
     
-    If given, vertices is an iterable of (name: string[, label: string[,
-    attrs: dict]]) tuples. If some disconnected vertices must be included, they
-    must be given in vertices. Any vertices attached to an edge may also be
-    included in this iterable, but don't have to be unless they have a label or
-    additional attributes.
+    If given, vertices is an iterable of tuples, where each tuple's items are
+    passed to mknode(). If some disconnected vertices (those that have no edges
+    connected to them) must be included, they must be given in vertices. Any
+    vertices attached to an edge may also be included in vertices, but does not
+    have to be unless it requires a label or additional attributes.
     """
 
     # Make the graph
@@ -146,21 +158,30 @@ def gw_example_small_fixed():
 
 # Warning: A large value for num_edges (eg. 1000) will timeout on load of the
 #   graph.
-_max_vertices = 100
-_num_edges = 100
+_vertex_name_range = 1000
+_num_vertices = 100
+_num_edges = 50
 def gw_example_large_random():
     """
     A larger example of using G().
 
-    Use `G(gw_example_large_random(), open=True)` to display this example.
+    Use `G(*gw_example_large_random(), open=True)` to display this example.
     """
+    
+    # Generate vertices
+    rand_vertices = [
+        str(random.randrange(_vertex_name_range))
+        for _ in range(_num_vertices)
+    ]
 
-    # Generate edges first
-    return [
+    # Generate edges
+    rand_edges = [
         (
-            str(random.randrange(_max_vertices)), # tail vertex
-            str(random.randrange(_max_vertices)), # head vertex
+            str(random.choice(rand_vertices)), # tail vertex
+            str(random.choice(rand_vertices)), # head vertex
             {"weight": 1} # edge weight
         )
         for _ in range(_num_edges)
     ]
+
+    return (rand_edges, rand_vertices)
