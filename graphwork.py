@@ -39,7 +39,7 @@ default_graph_attrs = {
     "rankdir": "LR"
 }
 
-def generic_graph(attrs: dict = None) -> graphviz.Graph:
+def mkgraph(attrs: dict = None) -> graphviz.Graph:
     """Create a graph with the given attributes"""
 
     graph_attrs = dict(default_graph_attrs)
@@ -48,7 +48,7 @@ def generic_graph(attrs: dict = None) -> graphviz.Graph:
 
     return graphviz.Graph(graph_attr=graph_attrs)
 
-def add_generic_node(
+def mknode(
         graph: graphviz.Graph,
         name: str, label: str = None, attrs: dict = None):
     """Create a node in graph with the given name, label and attributes."""
@@ -58,7 +58,7 @@ def add_generic_node(
 
     graph.node(name, label, **attrs)
 
-def add_generic_edge(
+def mkedge(
         graph: graphviz.Graph,
         tail: str, head: str, attrs: dict = None):
     """Create an edge in graph with the given end points and attributes."""
@@ -68,9 +68,9 @@ def add_generic_edge(
 
     graph.edge(tail, head, **attrs)
 
-def mkgraph(
+def graph(
         edges: list = None, vertices: list = None, attrs: dict = None,
-        mkgraph=generic_graph, mkedge=add_generic_edge, mknode=add_generic_node
+        mkgraph=mkgraph, mkedge=mknode, mknode=mkedge
 ):
     """
     Create and return a graphviz `Graph` object containing the given edges.
@@ -145,10 +145,10 @@ def G(edges, vertices=None, attrs=None, open=False):
     Create the graph and render it immediately.
 
     Short-hand for:
-    >>> render(mkgraph(edges, vertices, attrs), open=open)
+    >>> render(graph(edges, vertices, attrs), open=open)
     """
 
-    render(mkgraph(edges, vertices, attrs), open=open)
+    render(graph(edges, vertices, attrs), open=open)
 
 # Examples
 # --------------------------------------------------
