@@ -17,10 +17,10 @@ app).
 >>> G(gw_example_small_fixed(), open=True)
 
 Can also pass graph attributes, eg. up-down orientation.
->>> G(gw_example_small_fixed(), graph_attrs={rankdir='UD'}, open=True)
+>>> G(gw_example_small_fixed(), attrs={"rankdir": 'UD'}, open=True)
 
 Can also pass vertices - useful for disconnected vertices. These are combined
-with those mentioned in edges.
+with vertices mentioned in edges.
 Note: The graph can only be limited in size - don't go crazy or it will crash.
 >>> (edges, vertices) = gw_example_large_random()
 >>> print(edges)
@@ -39,18 +39,28 @@ default_graph_attrs = {
     "rankdir": "LR"
 }
 
-def make_generic_node(
+def generic_graph(attrs: dict = None) -> graphviz.Graph:
+    graph_attrs = dict(default_graph_attrs)
+    if (attrs != None):
+        graph_attrs.update(attrs)
+
+    return graphviz.Graph(graph_attr=graph_attrs)
+
+def add_generic_node(
         graph: graphviz.Graph,
-        name: str, label: str = None, attrs: dict = {}):
+        name: str, label: str = None, attrs: dict = None):
     """
     Create a node in graph with name, label and attributes.
     """
 
+    if attrs == None:
+        attrs = {}
+
     graph.node(name, label, **attrs)
 
-def make_generic_edge(
+def add_generic_edge(
         graph: graphviz.Graph,
-        tail: str, head: str, attrs: dict = {}):
+        tail: str, head: str, attrs: dict = None):
     """
     Create an edge in graph with end points and attributes.
     
@@ -59,11 +69,14 @@ def make_generic_edge(
       make_generic_edge(graph, *'AB')
     """
 
+    if attrs == None:
+        attrs = {}
+
     graph.edge(tail, head, **attrs)
 
 def mkgraph(
         edges: list, vertices: list = None, attrs: dict = None,
-        mkedge=make_generic_edge, mknode=make_generic_node
+        mkgraph=generic_graph, mkedge=add_generic_edge, mknode=add_generic_node
 ):
     """
     Create and return a graphviz `Graph` object containing the given edges.
@@ -77,14 +90,18 @@ def mkgraph(
     connected to them) must be included, they must be given in vertices. Any
     vertices attached to an edge may also be included in vertices, but does not
     have to be unless it requires a label or additional attributes.
+
+    if given, attrs is a dictionary of attributes for the graph.
+
+    mkgraph is a function that must take graph attributes and produce a
+    graphviz.Graph.
+
+    mkedge and mknode are functions that must take a graph and relevant
+    properties and add an edge/node with those properties to the graph.
     """
 
     # Make the graph
-    graph_attrs = dict(default_graph_attrs)
-    if (attrs != None):
-        graph_attrs.update(attrs)
-
-    graph = graphviz.Graph(graph_attr=graph_attrs)
+    graph = mkgraph(attrs)
 
     # Add vertices first
     if vertices != None:
@@ -127,15 +144,15 @@ def show(graph: graphviz.Graph):
 # G()
 # --------------------------------------------------
 
-def G(edges, vertices=None, graph_attrs=None, open=False):
+def G(edges, vertices=None, attrs=None, open=False):
     """
     Create the graph and render it immediately.
 
     Short-hand for:
-    >>> render(mkgraph(edges, vertices, graph_attrs), open=open)
+    >>> render(mkgraph(edges, vertices, attrs), open=open)
     """
 
-    render(mkgraph(edges, vertices, graph_attrs), open=open)
+    render(mkgraph(edges, vertices, attrs), open=open)
 
 # Examples
 # --------------------------------------------------
@@ -151,16 +168,16 @@ def gw_example_small_fixed():
     Use `G(gw_example_small_fixed(), open=True)` to display this example.
     """
 
-    return map(
-        lambda e: (*e[0], {"weight": e[1]}),
+    return list(map(
+        lambda e: (*e[0], {"weight": str(e[1])}),
         _gw_example_small_fixed_edges
-    )
+    ))
 
 # Warning: A large value for num_edges (eg. 1000) will timeout on load of the
 #   graph.
 _vertex_name_range = 1000
 _num_vertices = 100
-_num_edges = 50
+_num_edges = 100
 def gw_example_large_random():
     """
     A larger example of using G().
@@ -179,7 +196,7 @@ def gw_example_large_random():
         (
             str(random.choice(rand_vertices)), # tail vertex
             str(random.choice(rand_vertices)), # head vertex
-            {"weight": 1} # edge weight
+            {"weight": "1"} # edge weight
         )
         for _ in range(_num_edges)
     ]
